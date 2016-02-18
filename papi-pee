@@ -77,7 +77,9 @@ assert(putils.hasCommand(RAPL_LOADER))
 
 # -- go test --
 rapl_results = {}
-for t in range(0, N_TESTS): 
+for t in range(0, N_TESTS):
+    print ("PAPI-PEE test " + str(t))
+    
     rapl_report = RAPLTest(COMMAND)
 
     for k,v in rapl_report.iteritems():
