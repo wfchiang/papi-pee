@@ -62,13 +62,17 @@ assert(str_margin.endswith("%"))
 MARGIN = (float(str_margin[0:len(str_margin)-1]) / float(100))
 assert((0.0 <= MARGIN) and (MARGIN < 0.5))
 
-MARGIN = int(MARGIN * N_TESTS)
+MARGIN = int(round(MARGIN * N_TESTS)) 
 assert((2*MARGIN) < N_TESTS)
 
 COMMAND = ""
 for i in range(3, len(sys.argv)):
     COMMAND = COMMAND + sys.argv[i] + " "
 COMMAND = COMMAND[0:len(COMMAND)-1]
+
+print ("N_TESTS: " + str(N_TESTS))
+print ("MARGIN:  " + str(MARGIN))
+print ("COMMAND: " + str(COMMAND)) 
 
 
 # -- check RAPL loader --
