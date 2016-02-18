@@ -89,6 +89,8 @@ for t in range(0, N_TESTS):
             assert(k in rapl_results.keys())
             rapl_results[k].append(v)
 
+print (str(rapl_results)) 
+
 for k in rapl_results.keys():
     rapl_results[k] = takeAverage(MARGIN, rapl_results[k])
 
