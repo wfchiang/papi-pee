@@ -1,2 +1,95 @@
 #!/usr/bin/env python
 
+import os
+import sys
+import subprocess as subp
+import wf_python_utils as putils 
+
+RAPL_LOADER = "rapl_loader" 
+
+
+# ========
+# sub-routines
+# ========
+def RAPLTest (command):
+    assert(type(command) is str)
+
+    stdout_rapl = subp.Popen(RAPL_LOADER+" "+command, shell=True, stdout=subp.PIPE).stdout
+
+    rapl_report = {} 
+
+    for aline in stdout_rapl:
+        aline = aline.strip()
+
+        if (aline.startswith("PACKAGE_ENERGY:") and (aline.endswith("J"))):
+            aline = aline[15:len(aline)-1].strip()
+
+            rapl_report["package_energy"] = float(aline) 
+
+    assert("package_energy" in rapl_report.keys()) 
+    return rapl_report
+
+
+def takeAverage (margin, in_vs = []):
+    assert(type(margin) is int)
+    assert(0 <= margin)
+    assert(2*margin < len(in_vs))
+
+    vs = in_vs[:] 
+    
+    assert(all([(type(v) is float) for v in vs]))
+
+    vs.sort()
+    vs = vs[margin : len(vs)-margin]
+    assert(len(vs) > 0) 
+
+    return (sum(vs) / float(len(vs))) 
+            
+
+
+# ========
+# main
+# ========
+
+assert(len(sys.argv) >= 4)
+
+N_TESTS = int(sys.argv[1])
+assert(N_TESTS > 0) 
+
+str_margin = sys.argv[2].strip()
+assert(str_margin.endswith("%"))
+
+MARGIN = (float(str_margin[0:len(str_margin)-1]) / float(100))
+assert((0.0 <= MARGIN) and (MARGIN < 0.5))
+
+MARGIN = int(MARGIN * N_TESTS)
+assert((2*MARGIN) < N_TESTS)
+
+COMMAND = ""
+for i in range(3, len(sys.argv)):
+    COMMAND = COMMAND + sys.argv[i] + " "
+COMMAND = COMMAND[0:len(COMMAND)-1]
+
+
+# -- check RAPL loader --
+assert(putils.hasCommand(RAPL_LOADER))
+
+
+# -- go test --
+rapl_results = {}
+for t in range(0, N_TESTS): 
+    rapl_report = RAPLTest(COMMAND)
+
+    for k,v in rapl_report.iteritems():
+        if (t == 0):
+            assert(k not in rapl_results.keys())
+            rapl_results[k] = [v]
+
+        else:
+            assert(k in rapl_results.keys())
+            rapl_results[k].append(v)
+
+for k in rapl_results.keys():
+    rapl_results[k] = takeAverage(MARGIN, rapl_results[k])
+
+print (str(rapl_results)) 

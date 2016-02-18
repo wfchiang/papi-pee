@@ -24,5 +24,6 @@ rapl_loader: rapl_utils.o rapl_loader.o
 clean:
 	-rm *~
 	-rm *.o
+	-rm *.pyc 
 	-rm rapl_test
 	-rm rapl_loader 

@@ -1,33 +1,15 @@
 #!/usr/bin/env python
 
 import os
-import subprocess as subp 
+import subprocess as subp
+import wf_python_utils as putils 
 
 
 # ========
 # sub-routines
 # ========
-def BoolInput (mess):
-    assert(type(mess) is str)
-
-    while (True):
-        sin = raw_input(mess).strip()
-
-        if (sin in ["true", "True", "yes", "y", "Yes"]):
-            return True
-        
-        if (sin in ["false", "False", "no", "n", "No"]):
-            return False
-        
-
-def hasCommand (c):
-    assert(type(c) is str)
-    ret = subp.Popen("which "+c, shell=True, stdout=subp.PIPE).stdout.read()
-    return (len(ret) > 0)
-
-
 def GetCPUInfo ():
-    if (not hasCommand("lscpu")):
+    if (not putils.hasCommand("lscpu")):
         print ("WARNING: failed on checking CPU info...")
         print ("         Your system may not be able to run PAPI-PEE.")
         return []
@@ -62,7 +44,7 @@ def GetLibInfo (lname):
     if (not lname.endswith(".so")):
         lname = lname + ".so" 
     
-    if (not hasCommand("ldconfig")):
+    if (not putils.hasCommand("ldconfig")):
         print ("WARNING: \"ldconfig\" is not available in your system.")
         print ("         Cannot check library " + lname)
         return {}
@@ -128,7 +110,7 @@ def CheckMSR (cpuinfo = {}):
         os.system("sudo apt-get udpate") 
         os.system("sudo apt-get install msr-tools")
 
-        if (hasCommand("modprobe")): 
+        if (putils.hasCommand("modprobe")): 
             os.system("sudo modprobe msr")
 
     for cid in range(0, cpuinfo["# cpus"]):
@@ -136,7 +118,7 @@ def CheckMSR (cpuinfo = {}):
             print ("Error: filed on installing MSR...")
             exit(1)
 
-    if (BoolInput("Set read permission to MSR? [y/n] ")): 
+    if (putils.BoolInput("Set read permission to MSR? [y/n] ")): 
         os.system("sudo chmod 666 /dev/cpu/*/msr")
         
         
@@ -152,7 +134,7 @@ if (not isRAPLCapableMicroArchitecture(CPUINFO)):
     print ("WARNING: uncertain on your cpu microarchitecture.")
     print ("         PAPI-PEEE may not run properly.")
     
-    if (BoolInput("continue? [y/n] ")):
+    if (putils.BoolInput("continue? [y/n] ")):
         pass
     else:
         exit(0)
