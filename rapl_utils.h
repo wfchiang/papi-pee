@@ -12,7 +12,7 @@
 
 // #define VERB_RAPL_UTILS
 
-void prepareRAPL (int argc, char **argv); 
+void prepareRAPL (); 
 
 long long
 StartRAPLCount (); 

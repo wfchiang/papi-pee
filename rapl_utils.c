@@ -7,7 +7,7 @@ char EVENT_NAMES[MAX_RAPL_EVENTS][PAPI_MAX_STR_LEN];
 char EVENT_UNITS[MAX_RAPL_EVENTS][PAPI_MIN_STR_LEN];
 long long *EVENT_VALUES = NULL;
 
-void prepareRAPL (int argc, char **argv) {
+void prepareRAPL () { 
 
   const PAPI_component_info_t *cmpinfo = NULL;
 
@@ -64,7 +64,7 @@ void prepareRAPL (int argc, char **argv) {
     fprintf(stderr, "PAPI_create_eventset failed...\n"); 
     exit(1); 
   }
-  
+
   // Add all events 
   N_EVENTS = 0; 
   int code = PAPI_NATIVE_MASK;

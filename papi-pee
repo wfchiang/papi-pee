@@ -5,7 +5,8 @@ import sys
 import subprocess as subp
 import wf_python_utils as putils 
 
-RAPL_LOADER = "rapl_loader" 
+RAPL_LOADER = "rapl_loader"
+RAPL_BS = "./__rapl_bs" 
 
 
 # ========
@@ -13,9 +14,23 @@ RAPL_LOADER = "rapl_loader"
 # ========
 def RAPLTest (command):
     assert(type(command) is str)
+    assert(putils.hasCommand("bash")) 
 
-    stdout_rapl = subp.Popen(RAPL_LOADER+" "+command, shell=True, stdout=subp.PIPE).stdout
+    # -- creat a bash script fo the command --
+    bs = open(RAPL_BS, "w")
 
+    bs.write("#!/usr/bin/env bash\n")
+    bs.write("\n") 
+    bs.write(command + "\n") 
+
+    bs.close()
+
+    os.system("chmod +x " + RAPL_BS) 
+
+    # -- call RAPL_LOADER -- 
+    stdout_rapl = subp.Popen(RAPL_LOADER+" "+RAPL_BS, shell=True, stdout=subp.PIPE).stdout
+
+    # -- parse RAPL_LOADER's results -- 
     rapl_report = {} 
 
     for aline in stdout_rapl:
@@ -24,8 +39,10 @@ def RAPLTest (command):
         if (aline.startswith("PACKAGE_ENERGY:") and (aline.endswith("J"))):
             aline = aline[15:len(aline)-1].strip()
 
-            rapl_report["package_energy"] = float(aline) 
+            rapl_report["package_energy"] = float(aline)
 
+    os.system("rm " + RAPL_BS)
+    
     assert("package_energy" in rapl_report.keys()) 
     return rapl_report
 
@@ -56,13 +73,8 @@ assert(len(sys.argv) >= 4)
 N_TESTS = int(sys.argv[1])
 assert(N_TESTS > 0) 
 
-str_margin = sys.argv[2].strip()
-assert(str_margin.endswith("%"))
-
-MARGIN = (float(str_margin[0:len(str_margin)-1]) / float(100))
-assert((0.0 <= MARGIN) and (MARGIN < 0.5))
-
-MARGIN = int(round(MARGIN * N_TESTS)) 
+MARGIN = int(sys.argv[2])
+assert(0 <= MARGIN) 
 assert((2*MARGIN) < N_TESTS)
 
 COMMAND = ""
