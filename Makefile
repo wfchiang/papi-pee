@@ -1,10 +1,10 @@
 
-CFLAGS = -Wno-write-strings
+CFLAGS = -Wno-write-strings -Wall -fPIC 
 INCDIR = -I/home/wfchiang/lib/papi-5.4.3/include
 LIBDIR = -L/home/wfchiang/lib/papi-5.4.3/lib 
 
 
-all: rapl_utils.o rapl_test.o rapl_loader.o rapl_test rapl_loader 
+all: rapl_utils.o rapl_test.o rapl_loader.o rapl_test rapl_loader lib 
 
 rapl_utils.o: rapl_utils.c rapl_utils.h
 	gcc $(CFLAGS) $(INCDIR) $(LIBDIR) -c rapl_utils.c -lpapi -lpfm
@@ -20,6 +20,9 @@ rapl_test: rapl_utils.o rapl_test.o
 
 rapl_loader: rapl_utils.o rapl_loader.o
 	gcc $(CFLAGS) $(INCDIR) $(LIBDIR) -o rapl_loader rapl_utils.o rapl_loader.o -lpapi -lpfm
+
+lib: rapl_utils.o 
+	gcc $(CFLAGS) $(INCDIR) $(LIBDIR) -shared -o librapl_utils.so rapl_utils.o -lpapi -lpfm 
 
 clean:
 	-rm *~
