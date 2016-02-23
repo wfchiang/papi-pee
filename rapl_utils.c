@@ -7,6 +7,7 @@ char EVENT_NAMES[MAX_RAPL_EVENTS][PAPI_MAX_STR_LEN];
 char EVENT_UNITS[MAX_RAPL_EVENTS][PAPI_MIN_STR_LEN];
 long long *EVENT_VALUES = NULL;
 
+
 void prepareRAPL () { 
 
   const PAPI_component_info_t *cmpinfo = NULL;
@@ -126,13 +127,13 @@ long long
 StartRAPLCount () {
   assert(EventSet != PAPI_NULL);
   
-  long long before_time = PAPI_get_real_nsec();
+  RAPL_BEFORE_TIME = PAPI_get_real_nsec();
   int retval = PAPI_start( EventSet );
   if ( retval != PAPI_OK ) {
     fprintf(stderr, "PAPI_start failed...\n");
     exit(1);
   }
-  return before_time; 
+  return RAPL_BEFORE_TIME; 
 }
 
 
@@ -141,25 +142,24 @@ StopRAPLCount () {
   assert(EventSet != PAPI_NULL);
   assert(EVENT_VALUES != NULL);
   
-  long long after_time = PAPI_get_real_nsec();
+  RAPL_AFTER_TIME = PAPI_get_real_nsec();
   int retval = PAPI_stop( EventSet, EVENT_VALUES ); 
   if ( retval != PAPI_OK ) {
     fprintf(stderr, "PAPI_stop failed...\n"); 
     exit(1);
   }
-  return after_time; 
+  return RAPL_AFTER_TIME; 
 }
 
 
-void ReportRAPLCount (long long before_time,
-		      long long after_time) {
-  assert(before_time > 0);
-  assert(after_time > before_time);
+void ReportRAPLCount () {
+  assert(RAPL_BEFORE_TIME > 0); 
+  assert(RAPL_AFTER_TIME > RAPL_BEFORE_TIME); 
   assert(N_EVENTS > 0);
   assert(EVENT_VALUES != NULL); 
 
   int i; 
-  double elapsed_time = ((double)(after_time - before_time)) / 1.0e9;
+  double elapsed_time = ((double)(RAPL_AFTER_TIME - RAPL_BEFORE_TIME)) / 1.0e9;
   printf("Elapse time %.5f\n", elapsed_time);
 
   for(i = 0 ; i < N_EVENTS ; i++) {
