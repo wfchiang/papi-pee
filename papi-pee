@@ -41,9 +41,15 @@ def RAPLTest (command):
 
             rapl_report["package_energy"] = float(aline)
 
+        if (aline.startswith("TIME:")):
+            aline = aline[5:].strip()
+
+            rapl_report["time"] = float(aline) / float(1e9) 
+
     os.system("rm " + RAPL_BS)
     
-    assert("package_energy" in rapl_report.keys()) 
+    assert("package_energy" in rapl_report.keys())
+    assert("time" in rapl_report.keys()) 
     return rapl_report
 
 
@@ -54,7 +60,7 @@ def takeAverage (margin, in_vs = []):
 
     vs = in_vs[:] 
     
-    assert(all([(type(v) is float) for v in vs]))
+    assert(all([(type(v) is float) for v in vs])) 
 
     vs.sort()
     vs = vs[margin : len(vs)-margin]

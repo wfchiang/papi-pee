@@ -26,7 +26,8 @@ int main (int argc, char **argv)
   char *unit = NULL;
   long long evalue = ReadRAPLEvent("PACKAGE_ENERGY", &unit);
   assert(strstr(unit, "nJ")); 
-  printf("PACKAGE_ENERGY: %.10f %s\n", (double)(evalue/1e9), "J"); 
+  printf("PACKAGE_ENERGY: %.10f %s\n", (double)(evalue/1e9), "J");
+  printf("TIME: %lld\n", (after_time - before_time)); 
 
   /* Done, clean up */
   CleanupRAPL();
